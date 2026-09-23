@@ -20,3 +20,31 @@ data/detections/*.jsonl
 data/agent/
 data/results/*.json
 data/results/local-campaign-v3-blocks/
+
+# GitHub source release: keep local data, submission packages and temp files local.
+/data/
+/deliverables/
+/tmp/
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Documentation is opt-in: thesis, meetings, recordings and personal materials stay local.
+/docs/*
+!/docs/README.md
+!/docs/GETTING_STARTED.md
+!/docs/REPRODUCIBILITY.md
+!/docs/experiments/
+/docs/experiments/*
+!/docs/experiments/*.md
+!/docs/data/
+/docs/data/*
+!/docs/data/*.md
+!/docs/agent/
+/docs/agent/*
+!/docs/agent/2026-08-30-agent-mvp.md
+
+# Review new Markdown files in the allowed research directories before staging them.
