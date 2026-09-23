@@ -1,0 +1,17 @@
+{
+  "fault_type": "service_stopped",
+  "title": "Restart the stopped order service",
+  "likely_root_cause": "The order-service container is stopped or unreachable.",
+  "action_id": "start_api",
+  "risk_level": "medium",
+  "recovery_steps": [
+    "Start only the allow-listed api Compose service.",
+    "Do not rebuild images or change service configuration.",
+    "Wait for the existing liveness endpoint to recover."
+  ],
+  "verification_steps": [
+    "Confirm /health/live returns HTTP 200.",
+    "Confirm /health/database returns HTTP 200."
+  ],
+  "rollback_note": "If the existing container does not recover, stop and escalate rather than recreating infrastructure."
+}

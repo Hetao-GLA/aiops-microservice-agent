@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "experiment_id": "rcaeval-re2-ss-robust-delta-confirmation-v1",
+  "locked_at": "2026-08-30",
+  "status": "independent-system confirmation with frozen algorithms",
+  "source": {
+    "dataset": "RCAEval",
+    "repository": "https://huggingface.co/datasets/phamquiluan/RCAEval",
+    "index_path": "data/external/rcaeval/cases.parquet",
+    "index_sha256": "c49a288920dbba2e8e724679a14636d5c7eb2b45426bba14007ef79a6c0ab1bb"
+  },
+  "selection": {
+    "dataset": "RE2-SS",
+    "system_name": "Sock Shop",
+    "require_logs": true,
+    "expected_cases": 90,
+    "expected_root_cause_services": [
+      "carts",
+      "catalogue",
+      "orders",
+      "payment",
+      "user"
+    ],
+    "expected_faults": [
+      "cpu",
+      "delay",
+      "disk",
+      "loss",
+      "mem",
+      "socket"
+    ],
+    "expected_repetitions_per_service_fault_pair": 3
+  },
+  "telemetry": {
+    "files": [
+      "inject_time.txt",
+      "logs.parquet",
+      "metrics.parquet"
+    ],
+    "include_traces": false,
+    "pre_seconds": 60,
+    "post_seconds": 120,
+    "window_bounds": "inclusive"
+  },
+  "task": {
+    "name": "public_root_cause_localisation",
+    "target": "root_cause_service",
+    "classes": 5,
+    "keep_separate_from_local_three_fault_task": true
+  },
+  "frozen_development_evidence": {
+    "result": "data/results/rcaeval-re2-ob-delta-candidates-v1.json",
+    "result_sha256": "652b1ea2fe7fd39d1dc1d1f466d2fd97c90626e3034633f253f272f90c017ab8",
+    "spec": "experiment/configs/rcaeval-re2-ob-delta-candidates-spec.json",
+    "spec_sha256": "f35e8c045b9c8a3a210365fe83c7f66b24382ea51545ec879b8bddc8a1fd6b20",
+    "selected_candidate": "robust_service_delta_score"
+  },
+  "frozen_implementations": {
+    "candidate_module": "experiment/rcaeval_delta_candidates.py",
+    "candidate_module_sha256": "89697793842a7766ea68a73d8fa08601fa505b1b44031ab9487bfd2157db7b5f",
+    "reference_module": "experiment/rcaeval_public_baseline.py",
+    "reference_module_sha256": "90b8017f3209c03fd28c5fde9fb61d3d19216f955012e881108b2f7906367dc7"
+  },
+  "evaluation": {
+    "designs": [
+      "repetition-held-out",
+      "fault-type-held-out"
+    ],
+    "reference": "full_metrics_logistic_regression",
+    "candidate": "robust_service_delta_score",
+    "reported_metrics": [
+      "top_1_accuracy",
+      "macro_f1",
+      "per_class_f1",
+      "top_3_accuracy",
+      "confusion_matrix"
+    ],
+    "classifier": {
+      "name": "LogisticRegression",
+      "C": 1.0,
+      "solver": "lbfgs",
+      "max_iter": 2000,
+      "random_seed": 20260830
+    },
+    "metrics_features": {
+      "summaries": [
+        "pre_mean",
+        "post_mean",
+        "mean_delta"
+      ],
+      "missing_numeric_value": 0.0,
+      "scaler": "StandardScaler(with_mean=false)"
+    }
+  },
+  "robust_service_delta_score": {
+    "feature_suffix": "__mean_delta",
+    "normalisation": "absolute deviation from training median divided by training IQR",
+    "epsilon": 1e-09,
+    "absolute_score_cap": 20.0,
+    "service_score": "maximum score among mean_delta features prefixed by the candidate service",
+    "candidate_services": "root-cause service classes present in the training fold",
+    "tie_break": "lexicographic service name",
+    "uses_training_labels_for_parameter_fit": false
+  },
+  "confirmation_gate": {
+    "requirements": {
+      "candidate_repetition_macro_f1": 0.8,
+      "candidate_fault_macro_f1": 0.8,
+      "candidate_min_repetition_fold_macro_f1": 0.65,
+      "candidate_delay_macro_f1": 0.55,
+      "candidate_repetition_top3_accuracy": 0.95,
+      "candidate_fault_top3_accuracy": 0.95,
+      "candidate_minus_reference_repetition_macro_f1": 0.0,
+      "candidate_minus_reference_fault_macro_f1": 0.0,
+      "candidate_minus_reference_delay_macro_f1": 0.0
+    },
+    "success_rule": "all requirements must pass"
+  },
+  "rules": {
+    "hyperparameter_tuning": false,
+    "candidate_code_changes": false,
+    "reference_code_changes": false,
+    "fit_transformers_inside_training_fold": true,
+    "claim_cross_system_confirmation_only_if_gate_passes": true
+  }
+}

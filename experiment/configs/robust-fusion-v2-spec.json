@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "model_id": "gated-robust-fusion-v2",
+  "created_after_audit": "local-frozen-contribution-audit-v1-to-v3",
+  "purpose": "Training-only robust fusion with out-of-distribution fallback; v3 is development evidence and v4 is required for confirmation.",
+  "random_seed": 20260830,
+  "training": {
+    "path": "data/processed/incidents/local-campaign-v1.jsonl",
+    "sha256": "dd45cf4378e01caa5f9d3b698bba07870dad9f8d7306a1bedbe56ddf6d75ace6",
+    "records": 60
+  },
+  "development_diagnostic": {
+    "path": "data/processed/incidents/local-campaign-v3.jsonl",
+    "sha256": "c6383041fea9e3e5ab4f55bf69d91152bf21607164b7ac4b1f3832cd50f23800",
+    "confirmatory": false
+  },
+  "text_branch": {
+    "configuration": "identical_to_logs_only_v1"
+  },
+  "metric_engineering": {
+    "drop_absolute_families": [
+      "successful_requests",
+      "total_requests",
+      "failure_count",
+      "http_500_count",
+      "window_seconds"
+    ],
+    "add_rates": [
+      "successful_rate",
+      "failure_rate"
+    ],
+    "rate_phases": [
+      "pre_mean",
+      "post_mean",
+      "mean_delta"
+    ],
+    "range_handling": "clip_each_engineered_metric_to_v1_fold_or_full_training_min_max",
+    "scaling": "median_and_interquartile_range_fitted_on_training_only",
+    "zero_iqr_scale": 1.0
+  },
+  "fusion": {
+    "classifier": "LogisticRegression",
+    "C": 1.0,
+    "solver": "lbfgs",
+    "max_iter": 2000
+  },
+  "routing": {
+    "ood_measure": "fraction_of_engineered_metrics_outside_training_min_max",
+    "fallback_when_fraction_strictly_greater_than": 0.1,
+    "fallback_model": "logs_only_v1_configuration",
+    "report_coverage_and_fallback_rate": true
+  },
+  "development_evaluation": {
+    "v1_cross_validation": "shared_5_fold_StratifiedGroupKFold",
+    "v3_use": "post_hoc_diagnostic_only",
+    "no_v3_fitting_or_threshold_selection": true
+  },
+  "confirmation": {
+    "required_dataset": "new_local_campaign_v4",
+    "v3_must_not_be_reported_as_unseen_for_this_model": true,
+    "primary_metrics": [
+      "macro_f1",
+      "accuracy",
+      "coverage",
+      "fallback_rate"
+    ]
+  }
+}

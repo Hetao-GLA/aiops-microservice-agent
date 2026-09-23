@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "experiment_id": "rcaeval-re2-tt-service-delta-v2-confirmation",
+  "locked_at": "2026-08-30",
+  "status": "untouched third-system confirmation of the frozen empirical-tail Top-2 candidate",
+  "source": {
+    "dataset": "RCAEval",
+    "repository": "https://huggingface.co/datasets/phamquiluan/RCAEval",
+    "index_path": "data/external/rcaeval/cases.parquet",
+    "index_sha256": "c49a288920dbba2e8e724679a14636d5c7eb2b45426bba14007ef79a6c0ab1bb"
+  },
+  "selection": {
+    "dataset": "RE2-TT",
+    "system_name": "Train Ticket",
+    "require_logs": false,
+    "require_metrics": true,
+    "expected_cases": 90,
+    "expected_root_cause_services": [
+      "ts-auth-service",
+      "ts-order-service",
+      "ts-route-service",
+      "ts-train-service",
+      "ts-travel-service"
+    ],
+    "expected_faults": [
+      "cpu",
+      "delay",
+      "disk",
+      "loss",
+      "mem",
+      "socket"
+    ],
+    "expected_repetitions_per_service_fault_pair": 3
+  },
+  "telemetry": {
+    "files": [
+      "inject_time.txt",
+      "metrics.parquet"
+    ],
+    "include_logs": false,
+    "include_traces": false,
+    "pre_seconds": 60,
+    "post_seconds": 120,
+    "window_bounds": "inclusive",
+    "reason_for_metrics_only": "all 90 cases contain metrics, while one case has no logs; both frozen algorithms use metrics only"
+  },
+  "task": {
+    "name": "public_root_cause_localisation",
+    "target": "root_cause_service",
+    "classes": 5,
+    "keep_separate_from_local_three_fault_task": true
+  },
+  "frozen_development_evidence": {
+    "result": "data/results/rcaeval-service-delta-v2-development.json",
+    "result_sha256": "3e3c8356ab9c70ebe0d16a876a4e2d406c716387c478649a5a98ab0ae389aeed",
+    "spec": "experiment/configs/rcaeval-service-delta-v2-development-spec.json",
+    "spec_sha256": "8b879ff7c4da4c06ea0836d58bf40af06e3f15de2a259ba8ba1db5fa538e3752",
+    "selected_candidate": "empirical_tail_top2_service_score"
+  },
+  "frozen_implementations": {
+    "candidate_module": "experiment/rcaeval_service_delta_v2.py",
+    "candidate_module_sha256": "f5dbf568f0cbf76b5308b9eacb5913de368ee8eada85fdac94f940332486cd01",
+    "reference_module": "experiment/rcaeval_public_baseline.py",
+    "reference_module_sha256": "90b8017f3209c03fd28c5fde9fb61d3d19216f955012e881108b2f7906367dc7"
+  },
+  "evaluation": {
+    "designs": [
+      "repetition-held-out",
+      "fault-type-held-out"
+    ],
+    "reference": "full_metrics_logistic_regression",
+    "candidate": "empirical_tail_top2_service_score",
+    "shared_splits": true,
+    "reported_metrics": [
+      "top_1_accuracy",
+      "macro_f1",
+      "top_3_accuracy",
+      "per_class_f1",
+      "confusion_matrix",
+      "predicted_class_balance",
+      "exact_numeric_tie_fraction"
+    ],
+    "classifier": {
+      "name": "LogisticRegression",
+      "C": 1.0,
+      "solver": "lbfgs",
+      "max_iter": 2000,
+      "random_seed": 20260830
+    },
+    "metrics_features": {
+      "summaries": [
+        "pre_mean",
+        "post_mean",
+        "mean_delta"
+      ],
+      "missing_numeric_value": 0.0,
+      "scaler": "StandardScaler(with_mean=false)"
+    }
+  },
+  "empirical_tail_top2_service_score": {
+    "feature_suffix": "__mean_delta",
+    "training_centre": "median",
+    "feature_surprise": "-log10((1 + count(training absolute deviations >= test absolute deviation)) / (n_train + 1))",
+    "primary_service_score": "mean of the two largest feature-surprise values for the service",
+    "ranking_secondary": "mean surprise across all service features",
+    "ranking_tertiary": "fraction of service features outside the training min/max",
+    "ranking_quaternary": "mean log1p absolute training z with epsilon denominator",
+    "tie_break": "lexicographic only after all four numeric ranking keys are equal",
+    "epsilon": 1e-09,
+    "uses_training_targets_for_parameter_fit": false
+  },
+  "confirmation_gate": {
+    "minimums": {
+      "mean_macro_f1_minus_reference": 0.0,
+      "worst_design_macro_f1_minus_reference": -0.05,
+      "minimum_design_macro_f1": 0.75,
+      "minimum_repetition_fold_macro_f1": 0.55,
+      "delay_macro_f1_minus_reference": -0.02,
+      "minimum_top3_accuracy": 0.95
+    },
+    "maximums": {
+      "maximum_predicted_class_fraction": 0.4,
+      "maximum_exact_numeric_tie_fraction": 0.05
+    },
+    "success_rule": "every minimum and maximum must pass on the single untouched RE2-TT run"
+  },
+  "rules": {
+    "hyperparameter_tuning": false,
+    "candidate_code_changes": false,
+    "reference_code_changes": false,
+    "change_gate_after_results": false,
+    "replace_candidate_after_results": false,
+    "fit_statistics_inside_training_fold": true,
+    "run_once_except_documented_technical_failure": true,
+    "claim_three_system_confirmation_only_if_gate_passes": true
+  },
+  "interpretation_limits": [
+    "The result concerns cross-system algorithm generalisation, not transfer of one pre-trained model.",
+    "The candidate assumes service-qualified metric names and a known five-service candidate set.",
+    "The experiment uses no logs or traces and is not an official RCAEval metric-level Avg@k result."
+  ]
+}

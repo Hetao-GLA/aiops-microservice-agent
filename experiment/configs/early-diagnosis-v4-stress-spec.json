@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "analysis_id": "early-diagnosis-v4-stress-test",
+  "created_after_v4_confirmation": true,
+  "purpose": "No-fit post-hoc stress test of frozen incident classifiers before recovery evidence becomes available.",
+  "source_dataset": {
+    "path": "data/processed/incidents/local-campaign-v4.jsonl",
+    "sha256": "656e50f714aded0e772c6fb23c2a0100a3bc1d48a14bc8a1ae7653822ed5165e",
+    "records": 30,
+    "confirmatory_for_this_analysis": false
+  },
+  "frozen_candidate": {
+    "bundle": "data/models/gated-robust-fusion-v2",
+    "model_sha256": "336ef2a404bcd0db3e783638081a6b541e153f79b3cd7276b56423d5b7d99c85",
+    "fit_or_tune_on_v4": false
+  },
+  "time_windows": {
+    "pre_fault_seconds": 10,
+    "post_injection_cutoffs_seconds": [1, 3, 5, 8],
+    "cutoff_inclusive": true,
+    "full_retrospective_reference": true
+  },
+  "telemetry_rules": {
+    "logs": "retain raw Docker log records at or before injection plus cutoff; later fault and recovery records are excluded",
+    "probes": "retain raw probe records at or before injection plus cutoff",
+    "pre_phase": "timestamp strictly before injection",
+    "post_phase": "timestamp at or after injection",
+    "missing_post_numeric_value": 0.0,
+    "missing_value_interpretation": "explicit unavailable/failure sentinel fixed before prediction",
+    "raw_hashes_must_match_v4_provenance": true,
+    "raw_metric_schema_must_match_frozen_training": true
+  },
+  "models": [
+    "gated_robust_fusion_v2",
+    "logs_only",
+    "robust_fusion_branch_without_routing"
+  ],
+  "reporting": {
+    "primary_metric": "macro_f1",
+    "secondary_metrics": [
+      "accuracy",
+      "per_class_f1",
+      "fusion_coverage",
+      "fallback_rate",
+      "ood_fraction"
+    ],
+    "descriptive_milestones": [0.8, 0.9, 1.0],
+    "repeated_windows_are_not_independent_samples": true
+  },
+  "restrictions": {
+    "no_fit": true,
+    "no_threshold_selection": true,
+    "no_feature_selection": true,
+    "no_cutoff_selection_for_model_claims": true,
+    "must_not_be_called_independent_confirmation": true
+  }
+}

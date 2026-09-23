@@ -1,0 +1,5 @@
+# Applied temporarily by holdout_campaign; docker-compose.yml remains unchanged.
+services:
+  workload:
+    environment:
+      WORKLOAD_INTERVAL_SECONDS: "0.25"

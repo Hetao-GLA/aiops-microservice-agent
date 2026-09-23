@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "campaign_id": "local-campaign-v1",
+  "description": "Frozen balanced local fault campaign for the first ML baseline.",
+  "random_seed": 20260825,
+  "repetitions_per_fault": 20,
+  "fault_duration_seconds": 8,
+  "cooldown_seconds": 8,
+  "base_url": "http://localhost:8000",
+  "telemetry": {
+    "root": "data/raw/local",
+    "pre_seconds": 10,
+    "post_seconds": 10,
+    "interval_seconds": 1,
+    "request_timeout_seconds": 0.8
+  },
+  "paths": {
+    "ground_truth": "data/ground_truth/local-campaign-v1.jsonl",
+    "batch_result": "data/results/local-campaign-v1.json",
+    "evaluation": "data/results/evaluation-local-campaign-v1.json",
+    "campaign_summary": "data/results/local-campaign-v1-summary.json",
+    "detection_source": "data/detections/detections.jsonl",
+    "detection_archive_dir": "data/detections",
+    "processed_incidents": "data/processed/incidents/local-campaign-v1.jsonl",
+    "processed_manifest": "data/processed/incidents/local-campaign-v1-manifest.json"
+  },
+  "acceptance": {
+    "expected_incidents": 60,
+    "expected_incidents_per_fault": 20,
+    "require_complete_recovery": true,
+    "require_complete_detection_pairs": true,
+    "minimum_free_disk_bytes": 1073741824
+  }
+}

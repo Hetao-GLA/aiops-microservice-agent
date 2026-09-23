@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "experiment_id": "rcaeval-re2-ob-delta-candidates-v1",
+  "locked_at": "2026-08-30",
+  "status": "post-hoc development on RE2-OB; not independent confirmation",
+  "inputs": {
+    "incidents": "data/processed/incidents/rcaeval-re2-ob.jsonl",
+    "incidents_sha256": "d234d0682fcdc19594d4172904a7edb79842c93dd012bf82eaf427beb952d8c5",
+    "public_baseline_result": "data/results/rcaeval-re2-ob-public-baseline-v1.json",
+    "public_baseline_result_sha256": "9c7f8095e2d3cacb0c86d32f70e4375014d31d5338d516c1598e145147e7fb4d",
+    "public_baseline_spec": "experiment/configs/rcaeval-re2-ob-public-baseline-spec.json",
+    "public_baseline_spec_sha256": "574751ca0c032965865ebcce6618e7098237b8836e4d87baa4108a12953a3439",
+    "shift_audit_result": "data/results/rcaeval-re2-ob-shift-audit-v1.json",
+    "shift_audit_result_sha256": "013ce2ad72a1f0a9d204489393fa0b8eadf68380a3f3758654a90bb3e6dd90ce",
+    "shift_audit_spec": "experiment/configs/rcaeval-re2-ob-shift-audit-spec.json",
+    "shift_audit_spec_sha256": "c36fa0419b04bf0ec4425e8ca3eb800fb407f3c26c61eac285b7fc418f6898a6"
+  },
+  "evaluation": {
+    "designs": [
+      "repetition-held-out",
+      "fault-type-held-out"
+    ],
+    "reference": "frozen_metrics_only",
+    "candidates": [
+      "delta_only_lr",
+      "logs_plus_delta_lr",
+      "robust_service_delta_score"
+    ],
+    "reported_metrics": [
+      "top_1_accuracy",
+      "macro_f1",
+      "per_class_f1",
+      "top_3_accuracy",
+      "confusion_matrix"
+    ],
+    "shared_frozen_splits": true
+  },
+  "delta_features": {
+    "suffix": "__mean_delta",
+    "missing_value": 0.0,
+    "exclude_pre_mean": true,
+    "exclude_post_mean": true
+  },
+  "logistic_regression": {
+    "C": 1.0,
+    "solver": "lbfgs",
+    "max_iter": 2000,
+    "random_seed": 20260830,
+    "metric_vectoriser": "DictVectorizer(sparse=true, sort=true)",
+    "metric_scaler": "StandardScaler(with_mean=false)"
+  },
+  "text_features": {
+    "type": "TF-IDF",
+    "ngram_range": [
+      1,
+      2
+    ],
+    "min_df": 2,
+    "max_df": 0.98,
+    "max_features": 10000,
+    "sublinear_tf": true
+  },
+  "robust_service_delta_score": {
+    "normalisation": "absolute deviation from training median divided by training IQR",
+    "epsilon": 1e-09,
+    "absolute_score_cap": 20.0,
+    "service_score": "maximum score among mean_delta features prefixed by the candidate service",
+    "candidate_services": "root-cause service classes present in the training fold",
+    "tie_break": "lexicographic service name",
+    "uses_training_labels_for_parameter_fit": false
+  },
+  "promotion_gate": {
+    "selection_order": [
+      "delta_only_lr",
+      "robust_service_delta_score",
+      "logs_plus_delta_lr"
+    ],
+    "requirements": {
+      "repetition_held_out_macro_f1": 0.804922,
+      "repetition_1_macro_f1": 0.65,
+      "fault_type_held_out_macro_f1": 0.835535,
+      "delay_fold_macro_f1": 0.457143
+    },
+    "interpretation": "the first candidate in selection_order passing every requirement may proceed to an independent public-system confirmation"
+  },
+  "rules": {
+    "hyperparameter_tuning": false,
+    "reuse_reference_predictions_without_refit": true,
+    "fit_transformers_inside_training_fold": true,
+    "claim_confirmation_from_this_dataset": false
+  }
+}

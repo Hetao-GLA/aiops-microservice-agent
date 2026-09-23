@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "campaign_id": "local-campaign-v3",
+  "description": "Prospective confirmation after exploratory v2-r1. Workload-only shift, frozen v1 models, ten independently accepted three-incident blocks.",
+  "blocks": 10,
+  "base_seed": 20260830,
+  "repetitions_per_fault_per_block": 1,
+  "fault_duration_seconds": 8,
+  "cooldown_seconds": 8,
+  "base_url": "http://localhost:8000",
+  "telemetry": {
+    "root": "data/raw/local",
+    "pre_seconds": 10,
+    "post_seconds": 10,
+    "interval_seconds": 1,
+    "request_timeout_seconds": 0.8
+  },
+  "acceptance": {
+    "maximum_fault_duration_seconds": 20,
+    "maximum_metric_latency_ms": 1000,
+    "minimum_free_disk_bytes": 1073741824
+  },
+  "holdout": {
+    "frozen_bundle": "data/models/local-v1-frozen",
+    "workload_override": "experiment/configs/local-campaign-v2-workload.yml",
+    "baseline_interval_seconds": 1,
+    "experimental_interval_seconds": 0.25,
+    "warmup_seconds": 10,
+    "interpretation": "Prospective same-system workload-only confirmation using frozen v1 models; no v3 fitting or tuning."
+  },
+  "aggregate_paths": {
+    "ground_truth": "data/ground_truth/local-campaign-v3.jsonl",
+    "detections": "data/detections/local-campaign-v3.jsonl",
+    "evaluation": "data/results/evaluation-local-campaign-v3.json",
+    "summary": "data/results/local-campaign-v3-summary.json",
+    "processed_incidents": "data/processed/incidents/local-campaign-v3.jsonl",
+    "processed_manifest": "data/processed/incidents/local-campaign-v3-manifest.json",
+    "model_result": "data/results/local-frozen-holdout-v3.json",
+    "model_figure": "data/results/figures/local-frozen-holdout-v3.png"
+  }
+}

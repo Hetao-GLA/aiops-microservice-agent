@@ -1,0 +1,17 @@
+{
+  "fault_type": "database_connection_failure",
+  "title": "Restore the PostgreSQL dependency",
+  "likely_root_cause": "The order service is live but its PostgreSQL dependency is unavailable.",
+  "action_id": "start_database",
+  "risk_level": "medium",
+  "recovery_steps": [
+    "Start only the allow-listed database Compose service.",
+    "Do not recreate volumes or change database configuration.",
+    "Wait for the existing application database-health endpoint to recover."
+  ],
+  "verification_steps": [
+    "Confirm /health/live returns HTTP 200.",
+    "Confirm /health/database returns HTTP 200."
+  ],
+  "rollback_note": "If health does not recover, stop and escalate; never delete the database volume."
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "campaign_id": "local-campaign-v2",
+  "description": "Independent same-system holdout: jointly shifted workload and duration; no model fitting or tuning on v2.",
+  "random_seed": 20260828,
+  "repetitions_per_fault": 10,
+  "fault_duration_seconds": 12,
+  "cooldown_seconds": 8,
+  "base_url": "http://localhost:8000",
+  "telemetry": {
+    "root": "data/raw/local",
+    "pre_seconds": 10,
+    "post_seconds": 10,
+    "interval_seconds": 1,
+    "request_timeout_seconds": 0.8
+  },
+  "paths": {
+    "ground_truth": "data/ground_truth/local-campaign-v2.jsonl",
+    "batch_result": "data/results/local-campaign-v2.json",
+    "evaluation": "data/results/evaluation-local-campaign-v2.json",
+    "campaign_summary": "data/results/local-campaign-v2-summary.json",
+    "detection_source": "data/detections/detections.jsonl",
+    "detection_archive_dir": "data/detections",
+    "processed_incidents": "data/processed/incidents/local-campaign-v2.jsonl",
+    "processed_manifest": "data/processed/incidents/local-campaign-v2-manifest.json"
+  },
+  "acceptance": {
+    "expected_incidents": 30,
+    "expected_incidents_per_fault": 10,
+    "require_complete_recovery": true,
+    "require_complete_detection_pairs": true,
+    "minimum_free_disk_bytes": 1073741824
+  },
+  "holdout": {
+    "frozen_bundle": "data/models/local-v1-frozen",
+    "workload_override": "experiment/configs/local-campaign-v2-workload.yml",
+    "baseline_interval_seconds": 1.0,
+    "experimental_interval_seconds": 0.25,
+    "warmup_seconds": 10,
+    "protocol_output": "data/results/local-campaign-v2-protocol.json"
+  }
+}

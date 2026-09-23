@@ -1,0 +1,71 @@
+services:
+  api:
+    build: .
+    container_name: aiops-order-service
+    environment:
+      SERVICE_NAME: order-service
+      ENVIRONMENT: experiment
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@database:5432/operations
+    ports:
+      - "8000:8000"
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/live', timeout=2)",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  workload:
+    build: .
+    container_name: aiops-workload-generator
+    command: ["python", "-m", "experiment.workload"]
+    environment:
+      TARGET_BASE_URL: http://api:8000
+      WORKLOAD_INTERVAL_SECONDS: "1"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  detector:
+    build: .
+    container_name: aiops-rule-detector
+    command: ["python", "-m", "experiment.rule_detector"]
+    environment:
+      TARGET_BASE_URL: http://api:8000
+      DETECTION_INTERVAL_SECONDS: "1"
+      DETECTION_PATH: /data/detections/${DETECTION_OUTPUT_FILE:-detections.jsonl}
+    volumes:
+      - ./data/detections:/data/detections
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  database:
+    image: postgres:16-alpine
+    container_name: aiops-database
+    environment:
+      POSTGRES_DB: operations
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d operations"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

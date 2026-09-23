@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "experiment_id": "rcaeval-re2-ob-public-baseline-v1",
+  "locked_at": "2026-08-30",
+  "source": {
+    "dataset": "RCAEval",
+    "repository": "https://huggingface.co/datasets/phamquiluan/RCAEval",
+    "index_path": "data/external/rcaeval/cases.parquet",
+    "index_sha256": "c49a288920dbba2e8e724679a14636d5c7eb2b45426bba14007ef79a6c0ab1bb"
+  },
+  "selection": {
+    "dataset": "RE2-OB",
+    "system_name": "Online Boutique",
+    "require_logs": true,
+    "expected_cases": 90,
+    "expected_root_cause_services": [
+      "checkoutservice",
+      "currencyservice",
+      "emailservice",
+      "productcatalogservice",
+      "recommendationservice"
+    ],
+    "expected_faults": [
+      "cpu",
+      "delay",
+      "disk",
+      "loss",
+      "mem",
+      "socket"
+    ],
+    "expected_repetitions_per_service_fault_pair": 3
+  },
+  "telemetry": {
+    "files": [
+      "inject_time.txt",
+      "logs.parquet",
+      "metrics.parquet"
+    ],
+    "include_traces": false,
+    "pre_seconds": 60,
+    "post_seconds": 120,
+    "window_bounds": "inclusive"
+  },
+  "task": {
+    "name": "public_root_cause_localisation",
+    "target": "root_cause_service",
+    "classes": 5,
+    "keep_separate_from_local_three_fault_task": true
+  },
+  "evaluation": {
+    "primary": {
+      "name": "repetition-held-out",
+      "folds": 3,
+      "rule": "fold k tests repetition k and trains on the other two repetitions"
+    },
+    "stress": {
+      "name": "fault-type-held-out",
+      "folds": 6,
+      "rule": "each fold tests one fault type and trains on the other five fault types"
+    },
+    "models": [
+      "logs_only",
+      "metrics_only",
+      "logs_plus_metrics"
+    ],
+    "classifier": {
+      "name": "LogisticRegression",
+      "C": 1.0,
+      "solver": "lbfgs",
+      "max_iter": 2000,
+      "random_seed": 20260830
+    },
+    "text_features": {
+      "type": "TF-IDF",
+      "ngram_range": [1, 2],
+      "min_df": 2,
+      "max_df": 0.98,
+      "max_features": 10000,
+      "sublinear_tf": true
+    },
+    "metrics_features": {
+      "summaries": [
+        "pre_mean",
+        "post_mean",
+        "mean_delta"
+      ],
+      "missing_numeric_value": 0.0,
+      "scaler": "StandardScaler(with_mean=false)"
+    },
+    "reported_metrics": [
+      "top_1_accuracy",
+      "macro_f1",
+      "per_class_f1",
+      "top_3_accuracy",
+      "confusion_matrix"
+    ],
+    "fit_scope": "all feature transformers and the classifier are fit only on the training part of each fold",
+    "hyperparameter_tuning": false
+  },
+  "interpretation_limits": [
+    "The public task predicts root-cause service, not the three local fault labels.",
+    "Container and service identity in telemetry is an intended RCA signal, not a target metadata field.",
+    "The result is not directly comparable with RCAEval metric-level Avg@k rankings.",
+    "No trace modality is used in this experiment."
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "audit_id": "rcaeval-re2-ob-shift-audit-v1",
+  "locked_at": "2026-08-30",
+  "inputs": {
+    "incidents": "data/processed/incidents/rcaeval-re2-ob.jsonl",
+    "incidents_sha256": "d234d0682fcdc19594d4172904a7edb79842c93dd012bf82eaf427beb952d8c5",
+    "baseline_result": "data/results/rcaeval-re2-ob-public-baseline-v1.json",
+    "baseline_result_sha256": "9c7f8095e2d3cacb0c86d32f70e4375014d31d5338d516c1598e145147e7fb4d",
+    "baseline_spec": "experiment/configs/rcaeval-re2-ob-public-baseline-spec.json",
+    "baseline_spec_sha256": "574751ca0c032965865ebcce6618e7098237b8836e4d87baa4108a12953a3439"
+  },
+  "scope": {
+    "records": 90,
+    "designs": [
+      "repetition-held-out",
+      "fault-type-held-out"
+    ],
+    "models": [
+      "logs_only",
+      "metrics_only",
+      "logs_plus_metrics"
+    ],
+    "focus_folds": {
+      "repetition-held-out": "1",
+      "fault-type-held-out": "delay"
+    }
+  },
+  "metric_drift": {
+    "missing_value": 0.0,
+    "epsilon": 1e-09,
+    "absolute_z_cap": 20.0,
+    "measures": [
+      "training_range_breach_fraction",
+      "mean_absolute_training_z",
+      "mean_absolute_robust_z"
+    ],
+    "feature_blocks": [
+      "pre_mean",
+      "post_mean",
+      "mean_delta"
+    ],
+    "top_shifted_features": 15
+  },
+  "log_drift": {
+    "normalisation": [
+      "lowercase",
+      "replace_uuid",
+      "replace_ipv4",
+      "replace_hex",
+      "replace_numbers",
+      "collapse_whitespace"
+    ],
+    "measures": [
+      "line_weighted_unseen_template_fraction",
+      "unique_unseen_template_fraction",
+      "service_proportion_l1_distance"
+    ],
+    "top_unseen_templates": 10
+  },
+  "metric_signal_localisation": {
+    "features": "mean_delta only",
+    "normalisation": "absolute z using training-fold mean and standard deviation",
+    "service_score": "maximum absolute z among features prefixed by the service name",
+    "reported_hits": [
+      1,
+      3
+    ]
+  },
+  "analysis_rules": {
+    "reuse_frozen_predictions": true,
+    "fit_or_refit_classifier": false,
+    "change_model_hyperparameters": false,
+    "causal_claims": false,
+    "error_association_is_descriptive": true
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "campaign_id": "local-campaign-v2-r1",
+  "description": "Retry after a transient Windows telemetry-directory rename failure. Identical experimental settings; failed original v2 artifacts are retained and excluded.",
+  "random_seed": 20260828,
+  "repetitions_per_fault": 10,
+  "fault_duration_seconds": 12,
+  "cooldown_seconds": 8,
+  "base_url": "http://localhost:8000",
+  "telemetry": {
+    "root": "data/raw/local",
+    "pre_seconds": 10,
+    "post_seconds": 10,
+    "interval_seconds": 1,
+    "request_timeout_seconds": 0.8
+  },
+  "paths": {
+    "ground_truth": "data/ground_truth/local-campaign-v2-r1.jsonl",
+    "batch_result": "data/results/local-campaign-v2-r1.json",
+    "evaluation": "data/results/evaluation-local-campaign-v2-r1.json",
+    "campaign_summary": "data/results/local-campaign-v2-r1-summary.json",
+    "detection_source": "data/detections/detections.jsonl",
+    "detection_archive_dir": "data/detections",
+    "processed_incidents": "data/processed/incidents/local-campaign-v2-r1.jsonl",
+    "processed_manifest": "data/processed/incidents/local-campaign-v2-r1-manifest.json"
+  },
+  "acceptance": {
+    "expected_incidents": 30,
+    "expected_incidents_per_fault": 10,
+    "require_complete_recovery": true,
+    "require_complete_detection_pairs": true,
+    "minimum_free_disk_bytes": 1073741824
+  },
+  "holdout": {
+    "frozen_bundle": "data/models/local-v1-frozen",
+    "workload_override": "experiment/configs/local-campaign-v2-workload.yml",
+    "baseline_interval_seconds": 1,
+    "experimental_interval_seconds": 0.25,
+    "warmup_seconds": 10,
+    "protocol_output": "data/results/local-campaign-v2-r1-protocol.json"
+  },
+  "retry_of": "local-campaign-v2"
+}

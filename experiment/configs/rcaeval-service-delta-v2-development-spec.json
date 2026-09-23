@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "experiment_id": "rcaeval-service-delta-v2-development",
+  "locked_at": "2026-08-30",
+  "status": "post-hoc development on RE2-OB and RE2-SS; neither system remains confirmatory",
+  "systems": {
+    "RE2-OB": {
+      "incidents": "data/processed/incidents/rcaeval-re2-ob.jsonl",
+      "incidents_sha256": "d234d0682fcdc19594d4172904a7edb79842c93dd012bf82eaf427beb952d8c5",
+      "dataset_spec": "experiment/configs/rcaeval-re2-ob-public-baseline-spec.json",
+      "reference_result": "data/results/rcaeval-re2-ob-public-baseline-v1.json",
+      "reference_result_sha256": "9c7f8095e2d3cacb0c86d32f70e4375014d31d5338d516c1598e145147e7fb4d",
+      "reference_model_key": "metrics_only"
+    },
+    "RE2-SS": {
+      "incidents": "data/processed/incidents/rcaeval-re2-ss.jsonl",
+      "incidents_sha256": "c85ce8a488d99d4e2e85e2433eb98e69b3e8624842a117a9421699e327b38eda",
+      "dataset_spec": "experiment/configs/rcaeval-re2-ss-confirmation-spec.json",
+      "reference_result": "data/results/rcaeval-re2-ss-robust-delta-confirmation-v1.json",
+      "reference_result_sha256": "7bd84c7cbde7e54a06f47a37decb1ab9211b70a36a59391cf4c21d9b5a967ecc",
+      "reference_model_key": "full_metrics_logistic_regression"
+    }
+  },
+  "evaluation": {
+    "designs": [
+      "repetition-held-out",
+      "fault-type-held-out"
+    ],
+    "reference": "frozen_full_metrics_lr",
+    "candidates": [
+      "empirical_tail_top2_service_score",
+      "full_delta_soft_vote"
+    ],
+    "shared_existing_splits": true,
+    "reported_metrics": [
+      "top_1_accuracy",
+      "macro_f1",
+      "top_3_accuracy",
+      "per_class_f1",
+      "confusion_matrix"
+    ]
+  },
+  "empirical_tail_top2_service_score": {
+    "feature_suffix": "__mean_delta",
+    "training_centre": "median",
+    "feature_surprise": "-log10((1 + count(training absolute deviations >= test absolute deviation)) / (n_train + 1))",
+    "primary_service_score": "mean of the two largest feature-surprise values for the service",
+    "ranking_secondary": "mean surprise across all service features",
+    "ranking_tertiary": "fraction of service features outside the training min/max",
+    "ranking_quaternary": "mean log1p absolute training z with epsilon denominator",
+    "tie_break": "lexicographic only after all four numeric ranking keys are equal",
+    "epsilon": 1e-09,
+    "uses_training_targets_for_parameter_fit": false
+  },
+  "full_delta_soft_vote": {
+    "full_metric_branch": "the frozen full pre/post/delta logistic-regression configuration",
+    "delta_branch": "the frozen delta-only logistic-regression configuration",
+    "probability_weights": {
+      "full_metric_branch": 0.5,
+      "delta_branch": 0.5
+    },
+    "classifier": {
+      "C": 1.0,
+      "solver": "lbfgs",
+      "max_iter": 2000,
+      "random_seed": 20260830
+    },
+    "fit_every_transformer_inside_training_fold": true
+  },
+  "promotion_gate": {
+    "selection_order": [
+      "empirical_tail_top2_service_score",
+      "full_delta_soft_vote"
+    ],
+    "minimums": {
+      "mean_macro_f1_minus_reference": 0.0,
+      "worst_system_design_macro_f1_minus_reference": -0.05,
+      "minimum_system_design_macro_f1": 0.75,
+      "minimum_repetition_fold_macro_f1": 0.55,
+      "mean_delay_macro_f1_minus_reference": -0.02,
+      "minimum_top3_accuracy": 0.95
+    },
+    "maximums": {
+      "maximum_predicted_class_fraction": 0.4,
+      "maximum_exact_numeric_tie_fraction": 0.05
+    },
+    "success_rule": "the first candidate in selection_order passing every minimum and maximum may proceed to an untouched third-system confirmation"
+  },
+  "rules": {
+    "hyperparameter_tuning": false,
+    "change_gate_after_results": false,
+    "claim_confirmation_from_RE2_OB_or_RE2_SS": false,
+    "third_system_required_for_confirmation": true
+  }
+}

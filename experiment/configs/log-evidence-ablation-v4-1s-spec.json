@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "analysis_id": "log-evidence-ablation-v4-1s",
+  "purpose": "Post-hoc source and lexical-signature ablation of the frozen models on the locked +1 second v4 variants.",
+  "source_dataset": {
+    "path": "data/processed/incidents/early-diagnosis-v4-at-1s.jsonl",
+    "sha256": "566f0c544b8887d4aa42db2c1c1be8708d560253f2efbac091843c50b22c2c21",
+    "records": 30,
+    "confirmatory": false
+  },
+  "frozen_candidate": {
+    "bundle": "data/models/gated-robust-fusion-v2",
+    "model_sha256": "336ef2a404bcd0db3e783638081a6b541e153f79b3cd7276b56423d5b7d99c85"
+  },
+  "variants": [
+    "all_logs",
+    "order_service_only",
+    "workload_only",
+    "masked_all_logs",
+    "masked_order_service_only",
+    "masked_workload_only"
+  ],
+  "sources": {
+    "order_service_only": ["order-service"],
+    "workload_only": ["workload"]
+  },
+  "uniform_mask": {
+    "replacement_token": "maskedtoken",
+    "case_insensitive_substrings": [
+      "database",
+      "postgres",
+      "asyncpg",
+      "connection",
+      "connect",
+      "refused",
+      "http",
+      "error",
+      "failed",
+      "failure",
+      "unavailable",
+      "stopped",
+      "shutdown",
+      "timeout",
+      "healthy",
+      "success",
+      "succeeded",
+      "created",
+      "exception",
+      "traceback"
+    ],
+    "mask_all_three_digit_status_codes_100_to_599": true,
+    "applied_identically_to_every_class": true
+  },
+  "models": [
+    "gated_robust_fusion_v2",
+    "logs_only",
+    "robust_fusion_branch_without_routing"
+  ],
+  "restrictions": {
+    "no_fit": true,
+    "no_threshold_selection": true,
+    "no_mask_selection_after_prediction": true,
+    "no_variant_selection_for_model_claims": true,
+    "must_not_be_called_independent_confirmation": true
+  }
+}

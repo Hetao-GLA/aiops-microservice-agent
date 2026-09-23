@@ -1,0 +1,16 @@
+{
+  "fault_type": "http_500_failure",
+  "title": "Disable the controlled HTTP 500 mode",
+  "likely_root_cause": "The application is deliberately returning HTTP 500 responses while its service and database remain healthy.",
+  "action_id": "disable_http_500",
+  "risk_level": "low",
+  "recovery_steps": [
+    "Call the allow-listed internal fault endpoint with enabled=false.",
+    "Do not change application files or execute arbitrary commands."
+  ],
+  "verification_steps": [
+    "Confirm the HTTP 500 fault status is disabled.",
+    "Confirm service liveness and database health return HTTP 200."
+  ],
+  "rollback_note": "If the controlled flag cannot be disabled, stop and escalate without changing unrelated settings."
+}
